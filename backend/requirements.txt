@@ -1,0 +1,46 @@
+# =============================================
+# DealForge Backend — Python Dependencies
+# =============================================
+
+# Web framework
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+
+# Configuration
+pydantic-settings==2.6.1
+python-dotenv==1.0.1
+
+# Database
+sqlalchemy[asyncio]==2.0.36
+alembic==1.14.0
+aiosqlite==0.20.0           # SQLite async driver (dev)
+asyncpg==0.30.0             # PostgreSQL async driver (prod)
+psycopg2-binary==2.9.10     # PostgreSQL sync driver (Alembic)
+
+# Auth & Security
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.12
+python-docx==1.1.2
+pypdf==5.1.0
+
+# HTTP client (for inter-service calls)
+httpx==0.28.0
+
+# AI orchestration and model abstraction
+langgraph==0.2.53
+litellm==1.53.1
+
+# Logging
+structlog==24.4.0
+
+# Email validation
+email-validator==2.2.0
+
+# Serialization
+orjson==3.10.11
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0

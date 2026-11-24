@@ -1,0 +1,101 @@
+###############################################################################
+# render.yaml — DealForge Render Deployment Configuration
+#
+# Defines:
+#   - PostgreSQL managed database
+#   - FastAPI backend (Web Service)
+#   - React frontend (Static Site)
+#
+# How to use:
+#   1. Push this repository to GitHub / GitLab.
+#   2. Connect the repo to Render via dashboard.render.com → New → Blueprint.
+#   3. Render will provision all services automatically.
+#   4. Set secret env vars (APP_SECRET_KEY, etc.) in the Render dashboard.
+###############################################################################
+
+databases:
+  - name: dealforge-db
+    databaseName: dealforge
+    user: dealforge_user
+    plan: free          # upgrade to starter/standard for production
+
+services:
+  # ── Backend — FastAPI / uvicorn ──────────────────────────────────────────────
+  - type: web
+    name: dealforge-backend
+    runtime: python
+    plan: free           # upgrade to starter for always-on
+    region: oregon
+
+    # Build — install Python deps
+    buildCommand: pip install -r backend/requirements.txt
+
+    # Start — run migrations then launch uvicorn
+    startCommand: bash backend/start.sh
+
+    # Serve from repo root so imports like `from app.xxx` work
+    rootDir: .
+
+    envVars:
+      # ── App ───────────────────────────────────────────────────────────────
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: DealForge API
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_FORMAT
+        value: json
+
+      # ── Security ─────────────────────────────────────────────────────────
+      # Set APP_SECRET_KEY in dashboard — do NOT commit the value here
+      - key: APP_SECRET_KEY
+        sync: false         # marks as secret; must be set manually in dashboard
+      - key: DEALFORGE_DEMO_PASSWORD
+        sync: false
+
+      # ── Database — auto-linked from dealforge-db ───────────────────────
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dealforge-db
+          property: connectionString   # provides asyncpg URL
+
+      # ── CORS — set ALLOWED_ORIGINS to your frontend URL after first deploy
+      - key: ALLOWED_ORIGINS
+        value: https://dealforge-frontend.onrender.com   # update after deploy
+
+      # ── AI / LLM (optional) ──────────────────────────────────────────────
+      - key: LITELLM_DEFAULT_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+
+    healthCheckPath: /health
+
+  # ── Frontend — React / Vite Static Site ─────────────────────────────────────
+  - type: web
+    name: dealforge-frontend
+    runtime: static
+    plan: free
+
+    # Build from the frontend sub-directory
+    rootDir: frontend
+
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+
+    # SPA routing — serve index.html for all 404s
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+    envVars:
+      # Set this to your backend URL after first backend deploy
+      # e.g. https://dealforge-backend.onrender.com
+      - key: VITE_API_URL
+        sync: false     # set in dashboard — avoids hardcoding live URL here

@@ -1,0 +1,26 @@
+# =============================================
+# DealForge Agents — Python Dependencies
+# =============================================
+
+# LangGraph + LangChain
+langgraph==0.2.53
+langchain==0.3.9
+langchain-core==0.3.21
+langchain-community==0.3.9
+
+# LiteLLM — unified LLM API abstraction
+litellm==1.53.1
+
+# PDF and DOCX source extraction
+pypdf==5.1.0
+python-docx==1.1.2
+
+# Async support
+anyio==4.6.2
+
+# Shared with backend (versions must match)
+pydantic==2.10.1
+python-dotenv==1.0.1
+
+# Type checking
+typing-extensions==4.12.2
