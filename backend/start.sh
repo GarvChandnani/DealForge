@@ -23,7 +23,7 @@ echo "==> [DealForge] Repo root: $REPO_ROOT"
 echo "==> [DealForge] Running Alembic migrations..."
 
 cd "$REPO_ROOT/database"
-alembic upgrade head
+timeout 90 alembic upgrade head || { echo "==> [DealForge] Alembic failed or timed out"; exit 1; }
 cd "$REPO_ROOT"
 
 echo "==> [DealForge] Migrations complete."
